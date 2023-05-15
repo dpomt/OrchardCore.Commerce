@@ -1,0 +1,23 @@
+@model PriceTierPartViewModel
+
+<h3>Price variants</h3>
+
+<div class="row">
+    @foreach (var tierKey in Model.TierValues.Keys)
+    {
+        <div class="col-md-3">
+            <div class="mb-3" asp-validation-class-for="TierValues[tierKey]">
+                <label asp-for="TierValues[tierKey]">@tierKey @T["Price"] </label>
+                <div class="input-group">
+                    <input asp-for="TierValues[tierKey]" class="form-control text-muted variant-price-value" />
+                    <div class="input-group-append">
+                        <select asp-for="Currencies"
+                                class="form-select"
+                                asp-items="@(new SelectList(new List<OrchardCore.Commerce.MoneyDataType.Abstractions.ICurrency>() { Model.Currencies.First(p => p.CurrencyIsoCode == Model.TierCurrency) }, "CurrencyIsoCode", "CurrencyIsoCode"))"></select>
+                    </div>
+                </div>
+                <span asp-validation-for="TierValues[tierKey]"></span>
+            </div>
+        </div>
+    }
+</div>

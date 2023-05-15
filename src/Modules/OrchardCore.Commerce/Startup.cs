@@ -110,6 +110,17 @@ public class Startup : StartupBase
 
         services.AddScoped<IPriceProvider, PriceVariantProvider>();
 
+
+        // Price tier
+        services.AddScoped<IDataMigration, PriceTierMigrations>();
+
+        services.AddContentPart<PriceTierPart>()
+            .UseDisplayDriver<PriceTierPartDisplayDriver>()
+            .AddHandler<PriceTierPartHandler>();
+
+        services.AddScoped<IPriceProvider, PriceTierProvider>();
+
+
         // Currency
         services.AddScoped<ICurrencyProvider, CurrencyProvider>();
         services.AddScoped<IMoneyService, MoneyService>();

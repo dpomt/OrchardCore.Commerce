@@ -1,0 +1,14 @@
+@model PriceTierPartViewModel
+
+@if (Model.Tier != null && Model.Tier.Count > 0)
+{
+    <div class="product-price-tier">
+        Price tier:
+        <ul>
+            @foreach (var tier in Model.Tier)
+            {
+                <li>@tier.Key - @tier.Value.ToString()</li>
+            }
+        </ul>
+    </div>
+}
