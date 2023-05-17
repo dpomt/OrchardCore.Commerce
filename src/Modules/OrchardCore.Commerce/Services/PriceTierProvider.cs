@@ -46,6 +46,21 @@ public class PriceTierProvider : IPriceProvider
 
     private ShoppingCartItem AddPriceToShoppingCartItem(ShoppingCartItem item, ProductPart productPart)
     {
+        var priceTierPart = productPart.ContentItem.As<PriceTierPart>();
+
+        if (priceTierPart is { Tier: { } tier } && tier.Any())
+        {
+            var amount = tier.OrderBy(p => p.Key).Where(p => p.Key <= item.Quantity).Last().Value;
+            return item.WithPrice(new PrioritizedPrice(1, amount));
+
+            
+        }
+
+        return null;
+    }
+
+    private ShoppingCartItem AddPriceToShoppingCartItemXXX(ShoppingCartItem item, ProductPart productPart)
+    {
         var priceTiersPart = productPart.ContentItem.As<PriceTierPart>();
 
         if (priceTiersPart is { Tier: { } tier} && tier.Any())

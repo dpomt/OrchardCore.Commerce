@@ -51,7 +51,9 @@ public class PriceTierPartDisplayDriver : ContentPartDisplayDriver<PriceTierPart
                 viewModel,
                 Prefix,
                 viewModel => viewModel.TierValues,
-                viewModel => viewModel.TierCurrency))
+                viewModel => viewModel.TierAmounts,
+                viewModel => viewModel.TierCurrencies
+                ))
         {
             // Restoring variants so that only the new values are stored.
             part.Tier.RemoveAll();
@@ -59,9 +61,10 @@ public class PriceTierPartDisplayDriver : ContentPartDisplayDriver<PriceTierPart
 
             foreach (var x in viewModel.TierValues)
             {
-                if (x.Value.HasValue && viewModel.TierCurrency != Currency.UnspecifiedCurrency.CurrencyIsoCode)
+                if (x.Value.HasValue && viewModel.TierAmounts.ContainsKey(x.Key) && viewModel.TierAmounts[x.Key].HasValue)
                 {
-                    part.Tier[x.Key] = _moneyService.Create(x.Value.Value, viewModel.TierCurrency);
+                    int iAmount = viewModel.TierAmounts[x.Key].Value;
+                    part.Tier[iAmount] = _moneyService.Create(viewModel.TierValues[x.Key].Value, "EUR");
                 }
             }
         }
@@ -74,13 +77,36 @@ public class PriceTierPartDisplayDriver : ContentPartDisplayDriver<PriceTierPart
         model.ContentItem = part.ContentItem;
         model.PriceTierPart = part;
 
+        
+
+        var values = new Dictionary<string, decimal?>();
+        var amounts = new Dictionary<string, int?>();
+        var currencies = new Dictionary<string, string>();
         var tier = part.Tier ?? new Dictionary<int, Amount>();
-        var values = new Dictionary<int, decimal?>();
-        for (int i = 0; i < 5; ++i)
+        
+        if (tier.Count > 0)
         {
-            values[i] = null;
+            int s = 0;
+            foreach (var t in tier)
+            {
+                string key = "s" + (++s).ToString();
+                values[key] = t.Value.Value;
+                amounts[key] = t.Key;
+                currencies[key] = t.Value.Currency.CurrencyIsoCode;
+            }
         }
-        //tier.ForEach(p => values[p.Key] = p.Value.Value);
-        model.InitializeVariants(tier, values, model.TierCurrency);
+        else
+        {
+            for (int s = 1; s <= 5; ++s)
+            {
+                string key = "s" + s.ToString();
+                values[key] = null;
+                amounts[key] = null;
+                currencies[key] = _currencyOptions.Value.CurrentDisplayCurrency;
+            }
+        }
+
+
+        model.InitializeVariants(tier, values, amounts, currencies);
     }
 }
